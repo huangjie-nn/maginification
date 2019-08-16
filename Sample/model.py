@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[17]:
+# In[6]:
 
 
 import pickle
@@ -9,8 +9,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D
-
-
+from sklearn import preprocessing
 
 
 
@@ -18,9 +17,11 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv2D,
 X=pickle.load(open("datas.pickle","rb"))
 y=pickle.load(open("labels.pickle","rb"))
 
-y_coded=y.codes
+le=preprocessing.LabelEncoder()
 
-print(y_coded)
+y_labels=le.fit_transform(y)
+
+
 X=X/255.0
 
 
@@ -41,11 +42,11 @@ model.add(Dense(64))
 model.add(Dense(1000))
 model.add(Activation("relu"))
 
-model.compile(loss="categorical_crossentropy",
+model.compile(loss="sparse_categorical_crossentropy",
              optimizer="adam",
              metrics=["accuracy"])
 
-model.fit(X,y_binary,batch_size=32,validation_split=0.2)
+model.fit(X,y_labels,batch_size=32,validation_split=0.2)
 
 
 # In[ ]:
