@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[26]:
 
 
 #label processing
@@ -18,8 +18,12 @@ def create_label(label_file_name):
             tokens=line.split("\t")
 
 
-            if any(i.isdigit() for i in tokens[0]) and any(i.isdigit() for i in tokens[1]) :              
-                labels[tokens[0]]=tokens[1].strip("\n")
+            if any(i.isdigit() for i in tokens[0]) :     
+                if any(i.isdigit() for i in tokens[1]):
+                
+                    labels[float(tokens[0])]=float(tokens[1].strip("\n"))
+                else:
+                    labels[float(tokens[0])]=float(-999999)
                     
     return labels
      
@@ -36,15 +40,15 @@ def create_reference(label_file_name):
             tokens=line.split("\t")
 
 
-            if any(i.isdigit() for i in tokens[0]) and any(i.isdigit() for i in tokens[1]) :              
-                references[tokens[0]]=tokens[0].strip("\n")
+            if any(i.isdigit() for i in tokens[0]) or any(i.isdigit() for i in tokens[1]) :              
+                references[float(tokens[0])]=float(tokens[0].strip("\n"))
                     
     return references
 
 
 
 
-# In[3]:
+# In[27]:
 
 
 def load_label_for_images_in_folder(imagepath):
@@ -77,6 +81,7 @@ import cv2
 import random
 import glob
 import numpy as np
+from sortedcontainers import SortedDict
 
 def create_image_and_label(image_path,image_size):
     datas=[]
@@ -90,16 +95,22 @@ def create_image_and_label(image_path,image_size):
     labels=[]
     refs=[]
                     
-    for name in filenames:
+    for name in filenames:s
         key_value=name.rsplit('_')[-1].strip(".jpeg")
         if key_value in dic:
             labels.append((dic[key_value]))
-            datas.append(cv2.imread(name,cv2.IMREAD_GRAYSCALE))
-            refs.append((references[key_value]))       
-    datas=np.array(datas).reshape(-1,image_size,image_size,1)
+            datas.append(cv2.imread(name,cv2.IMREAD_COLOR))
+            refs.append((references[key_value]))  
+        else:
+            res =  dic[min(dic.keys(), key = lambda key: abs(key-key_value))] 
+            labels.append((dic[res]))
+            datas.append(cv2.imread(name,cv2.IMREAD_COLOR))
+            refs.append((references[res]))  
+            
+    datas=np.array(datas).reshape(-1,image_size,image_size,3)
     return datas,labels,refs
 
-get_ipython().run_line_magic('time', 'datas,labels,refs=create_image_and_label("all",32)')
+get_ipython().run_line_magic('time', 'datas,labels,refs=create_image_and_label("all",224)')
 
 
 # In[3]:
@@ -144,4 +155,21 @@ print(len(y))
 
 
 print(X[0])
+
+
+# In[25]:
+
+
+dic=create_label("label_summary.txt")
+ref=create_reference("label_summary.txt")
+
+
+res =  dic[min(dic.keys(), key = lambda key: abs(key-9535))] 
+res
+
+
+# In[ ]:
+
+
+
 
