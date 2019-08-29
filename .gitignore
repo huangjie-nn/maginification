@@ -32,3 +32,4 @@ _ReSharper*/
 packages/
 *.jpeg
 *.pickle
+*.ipynb_checkpoints
