@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[13]:
+# In[19]:
+
 
 
 import numpy as np
@@ -23,10 +24,10 @@ def directory_checking(oldpath,newpath):
 
 def resize_and_crop_image(path,factor,newpath):
     
-    oriimg=cv2.imread(path,cv2.IMREAD_GRAYSCALE)
+    oriimg=cv2.imread(path,cv2.IMREAD_COLOR)
 
     
-    height, width = oriimg.shape
+    height, width, depth = oriimg.shape
     imgScale = factor/height
     newX,newY = oriimg.shape[1]*imgScale, oriimg.shape[0]*imgScale
     newimg = cv2.resize(oriimg,(int(newX),int(newY)))
@@ -106,17 +107,24 @@ def gaussian_for_range(start,end,step,oldpath,newpath):
 
 
 def apply_vignetting(oldpath,newpath,var):
-    img = cv2.imread(oldpath,0)
+    img = cv2.imread(oldpath,cv2.IMREAD_COLOR)
     
-    rows,cols = img.shape
+    rows,cols,channel = img.shape
 
     a = cv2.getGaussianKernel(cols,var)
     b = cv2.getGaussianKernel(rows,var)
     c = b*a.T
-    d = c/c.max()
-    e = img*d
 
-    cv2.imwrite(newpath,e)   
+    
+    
+    mask = 255 * c / np.linalg.norm(c)
+    output = np.copy(img)
+
+
+    for i in range(channel):
+        output[:,:,i] = output[:,:,i] * mask
+
+    cv2.imwrite(newpath,output)   
 
 def recursive_vignetting(oldpath,newpath,var):
     
@@ -228,25 +236,12 @@ def zoom_mag_data_processing_pipeline(oldpath,newpath):
     change_image_name_in_batch("gaus_",newpath)
 
 
-# In[29]:
 
 
-oldpath="gaus_60"
-
-old_path=oldpath+'\*jpeg'
-
-filenames=glob.glob(old_path)
-newpath="gaus_60_vignetting_100"
-print(old_path)
-
-for f in filenames:
-    new_path=(newpath+(f.replace(oldpath,'')))
-    print(new_path)
-#     apply_vignetting(f,new_path,100)
 
 
-# In[10]:
+# In[20]:
 
 
-zoom_mag_data_processing_pipeline("ori","all")
+change_image_name_in_batch("gaus_","all")
 
