@@ -70,7 +70,7 @@ def load_label_for_images_in_folder(imagepath):
 print(len(load_label_for_images_in_folder("all")))
 
 
-# In[ ]:
+# In[2]:
 
 
 import cv2
@@ -102,7 +102,7 @@ def create_image_and_label(image_path,image_size):
 get_ipython().run_line_magic('time', 'datas,labels,refs=create_image_and_label("all",32)')
 
 
-# In[6]:
+# In[3]:
 
 
 #trying out pickle to save datas and labels
